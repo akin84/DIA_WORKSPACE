@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 02-01-2023
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 trigger CountOpenTasks on Task (after insert, after update, after delete) {
     
     ID Recordtype = [SELECT Id FROM RecordType WHERE Name ='United States' LIMIT 1].Id;
@@ -39,13 +46,12 @@ trigger CountOpenTasks on Task (after insert, after update, after delete) {
                           openOtherTask--;
                       }
                   }
-                  acc.Open_Tasks_Email__c = openEmailTask;
-                  acc.Open_Tasks_Call__c = openCallTask;
-                  acc.Open_Tasks_Meeting__c = openMeetingTask;
-                  acc.Open_Tasks_Other__c = openOtherTask;
               }
           }
-          
+          acc.Open_Tasks_Email__c = openEmailTask;
+          acc.Open_Tasks_Call__c = openCallTask;
+          acc.Open_Tasks_Meeting__c = openMeetingTask;
+          acc.Open_Tasks_Other__c = openOtherTask;
           updatedAccounts.put(acc.Id, acc);
   }
 
