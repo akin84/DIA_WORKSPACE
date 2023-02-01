@@ -1,44 +1,34 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 01-31-2023
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 trigger CountOpenTasks on Task (after insert, after update, after delete) {
     
-  
-    Set<Id> accountIds = new Set<Id>();
     ID Recordtype = [SELECT Id FROM RecordType WHERE Name ='United States' LIMIT 1].Id;
   
-    List<Task> tasks;
-    if (Trigger.isAfter && (Trigger.isUpdate || Trigger.isDelete)) {
-      tasks = Trigger.old;
-    } else if (Trigger.isAfter && Trigger.isInsert) {
-      tasks = Trigger.new;
-    }
-
+    List<Account> rltdAccounts = [SELECT Id, RecordTypeID, Type, Open_Tasks_Email__c, Open_Tasks_Call__c, Open_Tasks_Meeting__c, Open_Tasks_Other__c                                 
+                                  FROM Account WHERE Type = 'Prospect' AND RecordTypeID = :Recordtype LIMIT 5000];
+    
+    List<Task> openTasks = [SELECT Id, WhatId, Status, Type FROM Task WHERE WhatId != null  AND Type != null AND Status != 'Completed' LIMIT 5000];
   
-    for (Task t : tasks) {
-        if (t.WhatId != null) {
-          accountIds.add(t.WhatId);
-        }
-    }
-
-
-  
-    List<Account> rltdAccounts = [SELECT Id, RecordTypeID, Type, Open_Tasks_Email__c, Open_Tasks_Call__c, Open_Tasks_Meeting__c, Open_Tasks_Other__c, 
-                                  (SELECT ID,Type,Status,WhatId FROM Tasks) 
-                                  FROM Account WHERE Id IN :accountIds AND Type = 'Prospect' AND RecordTypeID = :Recordtype];
-
-  
+  	Integer openEmailTask = 0;
+  	Integer openCallTask = 0;
+  	Integer openMeetingTask = 0;
+  	Integer openOtherTask = 0;
+    
   Map<Id, Account> updatedAccounts = new Map<Id, Account>();
-
   
   for (Account acc : rltdAccounts) {
-      Integer openEmailTask = 0;
-      Integer openCallTask = 0;
-      Integer openMeetingTask = 0;
-      Integer openOtherTask = 0;
-          for (Task tsk : acc.tasks) {
+          for (Task tsk : openTasks) {
               if (tsk.WhatId == acc.Id) {
                   if (tsk.Status != 'Completed') {
                       if (tsk.Type == 'Email') {
                           openEmailTask++;
                       } else if (tsk.Type == 'Call') {
+                          openCallTask = 0;
                           openCallTask++;
                       } else if (tsk.Type == 'Meeting') {
                           openMeetingTask++;
@@ -52,7 +42,7 @@ trigger CountOpenTasks on Task (after insert, after update, after delete) {
                           openCallTask--;
                       } else if (tsk.Type == 'Meeting') {
                           openMeetingTask--;
-                      } else {
+                      } else if (tsk.Type == 'Other') {
                           openOtherTask--;
                       }
                   }
