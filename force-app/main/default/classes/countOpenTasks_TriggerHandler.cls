@@ -1,9 +1,8 @@
 /**
  * @description       :
- * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
- * @group             :
- * @last modified on  : 02-01-2023
- * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @author            : Ferdi AKIN
+ * @last modified on  : 02-02-2023
+ * @last modified by  : Ferdi AKIN
  **/
 public with sharing class countOpenTasks_TriggerHandler {
   public static void handlerAfterInsert(List<Task> newTasks) {
