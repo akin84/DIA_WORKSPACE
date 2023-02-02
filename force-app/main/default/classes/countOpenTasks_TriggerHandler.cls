@@ -30,9 +30,9 @@ public with sharing class countOpenTasks_TriggerHandler {
     ]
     .Id;
 
-    for (Task t : tasks) {
-      if (t.WhatId != null) {
-        accountIds.add(t.WhatId);
+    for (Task ts : tasks) {
+      if (ts.WhatId != null) {
+        accountIds.add(ts.WhatId);
       }
     }
 
@@ -48,7 +48,7 @@ public with sharing class countOpenTasks_TriggerHandler {
         (
           SELECT Id, Type, Status, WhatId
           FROM Tasks
-          WHERE WhatId IN :accountIds AND Status != 'Completed' AND Type != NULL
+          WHERE WhatId IN :accountIds AND Status != NULL AND Type != NULL
         )
       FROM Account
       WHERE
@@ -62,31 +62,29 @@ public with sharing class countOpenTasks_TriggerHandler {
     Integer openMeetingTask = 0;
     Integer openOtherTask = 0;
 
-    Map<Id, Account> updatedAccounts = new Map<Id, Account>();
+    List<Account> updatedAccounts = new List<Account>();
 
     for (Account acc : rltdAccounts) {
       for (Task tsk : acc.tasks) {
-        if (tsk.WhatId == acc.Id) {
-          if (tsk.Status != 'Completed') {
-            if (tsk.Type == 'Email') {
-              openEmailTask++;
-            } else if (tsk.Type == 'Call') {
-              openCallTask++;
-            } else if (tsk.Type == 'Meeting') {
-              openMeetingTask++;
-            } else {
-              openOtherTask++;
-            }
+        if (tsk.Status != 'Completed') {
+          if (tsk.Type == 'Email') {
+            openEmailTask++;
+          } else if (tsk.Type == 'Call') {
+            openCallTask++;
+          } else if (tsk.Type == 'Meeting') {
+            openMeetingTask++;
           } else {
-            if (tsk.Type == 'Email') {
-              openEmailTask--;
-            } else if (tsk.Type == 'Call') {
-              openCallTask--;
-            } else if (tsk.Type == 'Meeting') {
-              openMeetingTask--;
-            } else {
-              openOtherTask--;
-            }
+            openOtherTask++;
+          }
+        } else {
+          if (tsk.Type == 'Email') {
+            openEmailTask--;
+          } else if (tsk.Type == 'Call') {
+            openCallTask--;
+          } else if (tsk.Type == 'Meeting') {
+            openMeetingTask--;
+          } else {
+            openOtherTask--;
           }
         }
       }
@@ -94,12 +92,8 @@ public with sharing class countOpenTasks_TriggerHandler {
       acc.Open_Tasks_Call__c = openCallTask;
       acc.Open_Tasks_Meeting__c = openMeetingTask;
       acc.Open_Tasks_Other__c = openOtherTask;
-      updatedAccounts.put(acc.Id, acc);
+      updatedAccounts.add(acc);
     }
-    try {
-      update updatedAccounts.values();
-    } catch (Exception ex) {
-      System.debug('The following exception occured: ' + ex);
-    }
+    update updatedAccounts;
   }
 }

@@ -21,6 +21,32 @@ public with sharing class testOpenTasksTrigger {
     );
     insert testAccount;
 
+    Account testAccount2 = new Account(
+      Name = 'Test Account2',
+      Type = 'Installation Partner',
+      RecordTypeId = [
+        SELECT Id
+        FROM RecordType
+        WHERE Name = 'United States'
+        LIMIT 1
+      ]
+      .Id
+    );
+    insert testAccount2;
+
+    Account testAccount3 = new Account(
+      Name = 'Test Account3',
+      Type = 'Prospect',
+      RecordTypeId = [
+        SELECT Id
+        FROM RecordType
+        WHERE Name = 'EMEA'
+        LIMIT 1
+      ]
+      .Id
+    );
+    insert testAccount3;
+
     Task emailTask = new Task(
       Subject = 'Test Email Task',
       Type = 'Email',
@@ -47,7 +73,7 @@ public with sharing class testOpenTasksTrigger {
     );
     insert new List<Task>{ emailTask, callTask, meetingTask, otherTask };
 
-    Account updatedAccount = [
+    testAccount = [
       SELECT
         Id,
         Open_Tasks_Email__c,
@@ -57,15 +83,15 @@ public with sharing class testOpenTasksTrigger {
       FROM Account
       WHERE Id = :testAccount.Id
     ];
-    System.assertEquals(1, updatedAccount.Open_Tasks_Email__c);
-    System.assertEquals(1, updatedAccount.Open_Tasks_Call__c);
-    System.assertEquals(1, updatedAccount.Open_Tasks_Meeting__c);
-    System.assertEquals(1, updatedAccount.Open_Tasks_Other__c);
+    System.assertEquals(1, testAccount.Open_Tasks_Email__c);
+    System.assertEquals(1, testAccount.Open_Tasks_Call__c);
+    System.assertEquals(1, testAccount.Open_Tasks_Meeting__c);
+    System.assertEquals(1, testAccount.Open_Tasks_Other__c);
 
     emailTask.Status = 'Completed';
     update emailTask;
 
-    updatedAccount = [
+    testAccount2 = [
       SELECT
         Id,
         Open_Tasks_Email__c,
@@ -73,16 +99,16 @@ public with sharing class testOpenTasksTrigger {
         Open_Tasks_Meeting__c,
         Open_Tasks_Other__c
       FROM Account
-      WHERE Id = :testAccount.Id
+      WHERE Id = :testAccount2.Id
     ];
-    System.assertEquals(0, updatedAccount.Open_Tasks_Email__c);
-    System.assertEquals(1, updatedAccount.Open_Tasks_Call__c);
-    System.assertEquals(1, updatedAccount.Open_Tasks_Meeting__c);
-    System.assertEquals(1, updatedAccount.Open_Tasks_Other__c);
+    System.assertEquals(0, testAccount2.Open_Tasks_Email__c);
+    System.assertEquals(1, testAccount2.Open_Tasks_Call__c);
+    System.assertEquals(1, testAccount2.Open_Tasks_Meeting__c);
+    System.assertEquals(1, testAccount2.Open_Tasks_Other__c);
 
     delete callTask;
 
-    updatedAccount = [
+    testAccount3 = [
       SELECT
         Id,
         Open_Tasks_Email__c,
@@ -90,11 +116,11 @@ public with sharing class testOpenTasksTrigger {
         Open_Tasks_Meeting__c,
         Open_Tasks_Other__c
       FROM Account
-      WHERE Id = :testAccount.Id
+      WHERE Id = :testAccount3.Id
     ];
-    System.assertEquals(0, updatedAccount.Open_Tasks_Email__c);
-    System.assertEquals(0, updatedAccount.Open_Tasks_Call__c);
-    System.assertEquals(1, updatedAccount.Open_Tasks_Meeting__c);
-    System.assertEquals(1, updatedAccount.Open_Tasks_Other__c);
+    System.assertEquals(0, testAccount3.Open_Tasks_Email__c);
+    System.assertEquals(0, testAccount3.Open_Tasks_Call__c);
+    System.assertEquals(1, testAccount3.Open_Tasks_Meeting__c);
+    System.assertEquals(1, testAccount3.Open_Tasks_Other__c);
   }
 }
