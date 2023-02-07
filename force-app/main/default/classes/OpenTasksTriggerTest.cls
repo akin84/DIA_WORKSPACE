@@ -229,12 +229,20 @@ private class OpenTasksTriggerTest {
 
   @isTest
   static void testHandlerAfterDelete() {
-    // Account a3 = [SELECT Id, Name, RecordTypeId, Type FROM Account WHERE Name = 'Test Account 3'];
-    // Task t3 = [SELECT Id, Status, Type, WhatId FROM Task WHERE WhatId = :a3.Id];
-    // delete t3;
+    Account a3 = [
+      SELECT Id, Name, RecordTypeId, Type
+      FROM Account
+      WHERE Name = 'Test Account 3'
+    ];
+    Task t3 = [SELECT Id, Status, Type, WhatId FROM Task WHERE WhatId = :a3.Id];
+    delete t3;
 
-    // Account ac3 = [SELECT Id, Open_Tasks_Meeting__c FROM Account WHERE Id = :a3.Id ];
-    // System.assertEquals(0, ac3.Open_Tasks_Meeting__c, 'Meeting Task deleted');
+    Account ac3 = [
+      SELECT Id, Open_Tasks_Meeting__c
+      FROM Account
+      WHERE Id = :a3.Id
+    ];
+    System.assertEquals(0, ac3.Open_Tasks_Meeting__c, 'Meeting Task deleted');
 
     Account a1 = [
       SELECT Id, Name, RecordTypeId, Type
