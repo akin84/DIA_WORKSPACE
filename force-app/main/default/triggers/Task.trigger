@@ -2,17 +2,20 @@
  * @description       :
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             :
- * @last modified on  : 02-01-2023
- * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @last modified on  : 02-06-2023
+ * @last modified by  : Ferdi AKIN
  **/
 trigger Task on Task(after insert, after update, after delete) {
   if (Trigger.isInsert) {
-    countOpenTasks_TriggerHandler.handlerAfterInsert(Trigger.new);
+    OpenTasksCountTriggerHandler.handlerAfterInsert(Trigger.new);
   }
   if (Trigger.isUpdate) {
-    countOpenTasks_TriggerHandler.handlerAfterUpdate(Trigger.old, Trigger.new);
+    OpenTasksCountTriggerHandler.handlerAfterUpdate(
+      Trigger.oldMap,
+      Trigger.new
+    );
   }
   if (Trigger.isDelete) {
-    countOpenTasks_TriggerHandler.handlerAfterDelete(Trigger.old);
+    OpenTasksCountTriggerHandler.handlerAfterDelete(Trigger.old);
   }
 }
