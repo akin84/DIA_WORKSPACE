@@ -2,20 +2,16 @@
  * @description       :
  * @author            : Ferdi AKIN
  * @group             :
- * @last modified on  : 02-07-2023
+ * @last modified on  : 02-23-2023
  * @last modified by  : Ferdi AKIN
  **/
 public with sharing class OpenTasksCountTriggerHandler {
-  public static void handlerAfterInsert(List<Task> newTasks) {
-    Set<Id> accIdsSet = new Set<Id>();
-    ID Recordtype = [
-      SELECT Id
-      FROM RecordType
-      WHERE Name = 'United States'
-      LIMIT 1
-    ]
-    .Id;
+  static Set<Id> accIdsSet = new Set<Id>();
+  static ID recordTypeAccount = Schema.SObjectType.Account.getRecordTypeInfosByName()
+    .get('United States')
+    .getRecordTypeId();
 
+  public static void handlerAfterInsert(List<Task> newTasks) {
     for (Task ts : newTasks) {
       if (ts.WhatId != null) {
         accIdsSet.add(ts.WhatId);
@@ -41,7 +37,7 @@ public with sharing class OpenTasksCountTriggerHandler {
         WHERE
           Id IN :accIdsSet
           AND Type = 'Prospect'
-          AND RecordTypeID = :Recordtype
+          AND RecordTypeID = :recordTypeAccount
       ];
 
       System.enqueueJob(new OpenTasksOnAccountQueue(rltdAccounts));
@@ -52,15 +48,6 @@ public with sharing class OpenTasksCountTriggerHandler {
     Map<Id, Task> oldMapTasks,
     List<Task> newTasks
   ) {
-    Set<Id> accIdsSet = new Set<Id>();
-    ID Recordtype = [
-      SELECT Id
-      FROM RecordType
-      WHERE Name = 'United States'
-      LIMIT 1
-    ]
-    .Id;
-
     for (Task ts : newTasks) {
       Task tskOld = oldMapTasks.get(ts.Id);
       if (
@@ -92,7 +79,7 @@ public with sharing class OpenTasksCountTriggerHandler {
         WHERE
           Id IN :accIdsSet
           AND Type = 'Prospect'
-          AND RecordTypeID = :Recordtype
+          AND RecordTypeID = :recordTypeAccount
       ];
 
       System.enqueueJob(new OpenTasksOnAccountQueue(rltdAccounts));
@@ -100,15 +87,6 @@ public with sharing class OpenTasksCountTriggerHandler {
   }
 
   public static void handlerAfterDelete(List<Task> oldTasks) {
-    Set<Id> accIdsSet = new Set<Id>();
-    ID Recordtype = [
-      SELECT Id
-      FROM RecordType
-      WHERE Name = 'United States'
-      LIMIT 1
-    ]
-    .Id;
-
     for (Task ts : oldTasks) {
       accIdsSet.add(ts.WhatId);
     }
@@ -132,7 +110,7 @@ public with sharing class OpenTasksCountTriggerHandler {
         WHERE
           Id IN :accIdsSet
           AND Type = 'Prospect'
-          AND RecordTypeID = :Recordtype
+          AND RecordTypeID = :recordTypeAccount
       ];
 
       system.enqueueJob(new OpenTasksOnAccountQueue(rltdAccounts));

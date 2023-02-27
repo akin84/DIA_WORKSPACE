@@ -2,7 +2,7 @@
  * @description       :
  * @author            : Ferdi AKIN
  * @group             :
- * @last modified on  : 02-07-2023
+ * @last modified on  : 02-13-2023
  * @last modified by  : Ferdi AKIN
  **/
 public with sharing class OpenTasksOnAccountQueue implements System.Queueable {
@@ -14,14 +14,13 @@ public with sharing class OpenTasksOnAccountQueue implements System.Queueable {
   }
 
   public void execute(QueueableContext context) {
-    Integer openEmailTask = 0;
-    Integer openCallTask = 0;
-    Integer openMeetingTask = 0;
-    Integer openOtherTask = 0;
-
     List<Account> updatedAccounts = new List<Account>();
 
     for (Account acc : rltdAccounts) {
+      Integer openEmailTask = 0;
+      Integer openCallTask = 0;
+      Integer openMeetingTask = 0;
+      Integer openOtherTask = 0;
       for (Task tsk : acc.Tasks) {
         if (tsk.Status != 'Completed') {
           if (tsk.Type == 'Email') {
